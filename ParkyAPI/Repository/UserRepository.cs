@@ -40,7 +40,8 @@ namespace ParkyAPI.Repository
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new Claim[] {
-                    new Claim(ClaimTypes.Name, user.Id.ToString())
+                    new Claim(ClaimTypes.Name, user.Id.ToString()),
+                    new Claim(ClaimTypes.Role, user.Role)
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials
@@ -55,12 +56,30 @@ namespace ParkyAPI.Repository
 
         public bool IsUniqueUser(string username)
         {
-            throw new NotImplementedException();
+            var user = _db.Users.SingleOrDefault(x => x.Username == username);
+
+            // reuturn null if user not found
+            if (user == null)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         public User Register(string username, string password)
         {
-            throw new NotImplementedException();
+            User userObj = new User()
+            {
+                Username = username,
+                Password = password,
+                Role = "Admin"
+            };
+
+            _db.Users.Add(userObj);
+            _db.SaveChanges();
+            userObj.Password = "";
+            return userObj;
         }
     }
 }
